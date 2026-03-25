@@ -61,3 +61,8 @@ module "asg" {
   max_size               = var.max_size
   user_data              = file("${path.module}/user_data.sh")
 }
+module "cloudwatch" {
+  source       = "../../modules/cloudwatch"
+  project_name = var.project_name
+  asg_name     = module.asg.asg_name
+}

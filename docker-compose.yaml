@@ -4,11 +4,11 @@ services:
     ports:
       - "8001:8001"
     environment:
-      DB_HOST: shopflow-postgres-db.ckpu2quu2356.us-east-1.rds.amazonaws.com
-      DB_PORT: 5432
-      DB_NAME: shopflow
-      DB_USER: shopflowadmin
-      DB_PASSWORD: Shopflow123!
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
 
   product-service:
     image: 272183979798.dkr.ecr.us-east-1.amazonaws.com/shopflow-product-service:latest
@@ -20,10 +20,10 @@ services:
     ports:
       - "8015:8003"
     environment:
-      DB_HOST: shopflow-postgres-db.ckpu2quu2356.us-east-1.rds.amazonaws.com
-      DB_PORT: 5432
-      DB_NAME: shopflow
-      DB_USER: shopflowadmin
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
       USER_SERVICE_URL: http://user-service:8001
       PRODUCT_SERVICE_URL: http://product-service:8002
