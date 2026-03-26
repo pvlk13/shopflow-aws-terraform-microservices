@@ -26,7 +26,7 @@ resource "aws_autoscaling_group" "this" {
   max_size            = var.max_size
   min_size            = var.min_size
   vpc_zone_identifier = var.private_app_subnet_ids
-  target_group_arns   = [var.target_group_arn]
+  target_group_arns   = var.target_group_arns
   health_check_type   = "ELB"
 
   launch_template {

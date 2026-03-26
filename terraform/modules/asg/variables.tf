@@ -22,10 +22,6 @@ variable "private_app_subnet_ids" {
   type = list(string)
 }
 
-variable "target_group_arn" {
-  type = string
-}
-
 variable "desired_capacity" {
   type = number
 }
@@ -36,4 +32,8 @@ variable "min_size" {
 
 variable "max_size" {
   type = number
+}
+
+variable "target_group_arns" {
+  type = list(string)
 }

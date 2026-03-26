@@ -10,14 +10,14 @@ resource "aws_lb" "this" {
   }
 }
 
-resource "aws_lb_target_group" "this" {
-  name     = "${var.project_name}-tg"
-  port     = var.target_port
+resource "aws_lb_target_group" "user_tg" {
+  name     = "${var.project_name}-user-tg"
+  port     = 8001
   protocol = "HTTP"
   vpc_id   = var.vpc_id
 
   health_check {
-    path                = var.health_check_path
+    path                = "/health"
     protocol            = "HTTP"
     matcher             = "200"
     interval            = 30
@@ -27,7 +27,49 @@ resource "aws_lb_target_group" "this" {
   }
 
   tags = {
-    Name = "${var.project_name}-tg"
+    Name = "${var.project_name}-user-tg"
+  }
+}
+
+resource "aws_lb_target_group" "product_tg" {
+  name     = "${var.project_name}-product-tg"
+  port     = 8010
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+
+  health_check {
+    path                = "/health"
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "${var.project_name}-product-tg"
+  }
+}
+
+resource "aws_lb_target_group" "order_tg" {
+  name     = "${var.project_name}-order-tg"
+  port     = 8015
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+
+  health_check {
+    path                = "/health"
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name = "${var.project_name}-order-tg"
   }
 }
 
@@ -38,6 +80,70 @@ resource "aws_lb_listener" "http" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.this.arn
+    target_group_arn = aws_lb_target_group.order_tg.arn
+  }
+}
+
+resource "aws_lb_listener_rule" "users_rule" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 10
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.user_tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/users/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "products_rule" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 20
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.product_tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/products", "/products/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "orders_rule" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 30
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.order_tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/orders", "/orders/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "health_rule" {
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 40
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.order_tg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/health"]
+    }
   }
 }

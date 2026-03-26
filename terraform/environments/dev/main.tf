@@ -55,7 +55,11 @@ module "asg" {
   key_name               = var.key_name
   app_sg_id              = module.security_groups.app_sg_id
   private_app_subnet_ids = module.vpc.private_app_subnet_ids
-  target_group_arn       = module.alb.target_group_arn
+  target_group_arns = [
+  module.alb.user_tg_arn,
+  module.alb.product_tg_arn,
+  module.alb.order_tg_arn
+]
   desired_capacity       = var.desired_capacity
   min_size               = var.min_size
   max_size               = var.max_size
