@@ -37,7 +37,3 @@ variable "min_size" {
 variable "max_size" {
   type = number
 }
-
-variable "user_data" {
-  type = string
-}

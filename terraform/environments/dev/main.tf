@@ -59,7 +59,7 @@ module "asg" {
   desired_capacity       = var.desired_capacity
   min_size               = var.min_size
   max_size               = var.max_size
-  user_data              = file("${path.module}/user_data.sh")
+ 
 }
 module "cloudwatch" {
   source       = "../../modules/cloudwatch"
