@@ -1,19 +1,3 @@
-resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
-  alarm_name          = "${var.project_name}-high-cpu"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/EC2"
-  period              = 60
-  statistic           = "Average"
-  threshold           = 70
-
-  dimensions = {
-    AutoScalingGroupName = var.asg_name
-  }
-
-  alarm_description = "EC2 CPU exceeds 70%"
-}
 
 resource "aws_cloudwatch_dashboard" "main" {
   dashboard_name = "${var.project_name}-dashboard"
@@ -102,4 +86,57 @@ resource "aws_cloudwatch_dashboard" "main" {
       }
     ]
   })
+}
+
+resource "aws_cloudwatch_metric_alarm" "ec2_cpu_high" {
+  alarm_name          = "${var.project_name}-cpu-high"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 70
+  alarm_description   = "Scale out when CPU is high"
+
+  dimensions = {
+    AutoScalingGroupName = var.asg_name
+  }
+
+  alarm_actions = [var.scale_out_policy_arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "ec2_cpu_low" {
+  alarm_name          = "${var.project_name}-cpu-low"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 20
+  alarm_description   = "Scale in when CPU is low"
+
+  dimensions = {
+    AutoScalingGroupName = var.asg_name
+  }
+
+  alarm_actions = [var.scale_in_policy_arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_hosts" {
+  alarm_name          = "${var.project_name}-alb-unhealthy-hosts"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "UnHealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 0
+  alarm_description   = "Alert when unhealthy hosts exist"
+
+  dimensions = {
+    TargetGroup  = var.order_tg_arn_suffix
+    LoadBalancer = var.alb_arn_suffix
+  }
 }

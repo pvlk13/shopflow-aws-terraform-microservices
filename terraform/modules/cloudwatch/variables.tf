@@ -21,3 +21,11 @@ variable "order_tg_arn_suffix" {
 variable "db_instance_identifier" {
   type = string
 }
+
+variable "scale_out_policy_arn" {
+  type = string
+}
+
+variable "scale_in_policy_arn" {
+  type = string
+}

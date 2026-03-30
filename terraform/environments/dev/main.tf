@@ -65,4 +65,6 @@ module "cloudwatch" {
   alb_arn_suffix         = module.alb.alb_arn_suffix
   order_tg_arn_suffix    = module.alb.order_tg_arn_suffix
   db_instance_identifier = module.rds.db_instance_identifier
+  scale_out_policy_arn   = module.asg.scale_out_policy_arn
+  scale_in_policy_arn    = module.asg.scale_in_policy_arn
 }
