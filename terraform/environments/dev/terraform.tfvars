@@ -9,7 +9,7 @@ allowed_ssh_cidrs = ["62.45.86.198/32"]
 ami_id        = "ami-02dfbd4ff395f2a1b" # Amazon Linux 2 (check region!)
 instance_type = "t3.micro"
 key_name      = "shopflow-key" # Make sure to create this key pair in AWS and update the name here
-desired_capacity = 1
-min_size         = 1
+desired_capacity = 2
+min_size         = 2
 max_size         = 2
 

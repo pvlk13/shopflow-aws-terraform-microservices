@@ -28,15 +28,6 @@ module "rds" {
   db_username           = var.db_username
   db_password           = var.db_password
 }
-module "ec2" {
-  source           = "../../modules/ec2"
-  project_name     = var.project_name
-  ami_id           = var.ami_id
-  instance_type    = var.instance_type
-  public_subnet_id = module.vpc.public_subnet_ids[0]
-  app_sg_id        = module.security_groups.app_sg_id
-  key_name         = var.key_name
-}
 module "alb" {
   source            = "../../modules/alb"
   project_name      = var.project_name
@@ -65,8 +56,13 @@ module "asg" {
   max_size               = var.max_size
  
 }
+
 module "cloudwatch" {
-  source       = "../../modules/cloudwatch"
-  project_name = var.project_name
-  asg_name     = module.asg.asg_name
+  source                 = "../../modules/cloudwatch"
+  project_name           = var.project_name
+  asg_name               = module.asg.asg_name
+  aws_region             = var.aws_region
+  alb_arn_suffix         = module.alb.alb_arn_suffix
+  order_tg_arn_suffix    = module.alb.order_tg_arn_suffix
+  db_instance_identifier = module.rds.db_instance_identifier
 }

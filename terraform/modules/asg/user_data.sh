@@ -1,6 +1,6 @@
 #!/bin/bash
 dnf update -y
-dnf install -y docker git
+dnf install -y docker git postgresql15
 systemctl enable docker
 systemctl start docker
 usermod -aG docker ec2-user
@@ -20,13 +20,29 @@ DB_NAME=$(aws ssm get-parameter --name "/shopflow/db/name" --query "Parameter.Va
 DB_USER=$(aws ssm get-parameter --name "/shopflow/db/user" --query "Parameter.Value" --output text --region us-east-1)
 DB_PASSWORD=$(aws ssm get-parameter --name "/shopflow/db/password" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
 
-
-cat > /home/ec2-user/shopflow-aws-terraform-microservices/.env <<EOF
+cat > .env <<EOF
 DB_HOST=$DB_HOST
 DB_PORT=$DB_PORT
 DB_NAME=$DB_NAME
 DB_USER=$DB_USER
 DB_PASSWORD=$DB_PASSWORD
 EOF
+
+until PGPASSWORD="$DB_PASSWORD" PGSSLMODE=require psql \
+  -h "$DB_HOST" \
+  -p "$DB_PORT" \
+  -U "$DB_USER" \
+  -d "$DB_NAME" \
+  -c '\q'; do
+  echo "DB not ready yet..."
+  sleep 5
+done
+
+PGPASSWORD="$DB_PASSWORD" PGSSLMODE=require psql \
+  -h "$DB_HOST" \
+  -p "$DB_PORT" \
+  -U "$DB_USER" \
+  -d "$DB_NAME" \
+  -f /home/ec2-user/shopflow-aws-terraform-microservices/db/init.sql
 
 docker-compose up -d
