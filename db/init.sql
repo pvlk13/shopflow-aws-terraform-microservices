@@ -1,11 +1,3 @@
-
-PGPASSWORD="$DB_PASSWORD" PGSSLMODE=require psql \
-  -h "$DB_HOST" \
-  -p "$DB_PORT" \
-  -U "$DB_USER" \
-  -d "$DB_NAME" \
-  -f /home/ec2-user/shopflow-aws-terraform-microservices/db/init.sql
-
 CREATE TABLE IF NOT EXISTS users (
     id BIGSERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
