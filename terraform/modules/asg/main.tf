@@ -104,3 +104,20 @@ resource "aws_autoscaling_policy" "scale_in" {
   scaling_adjustment     = -1
   cooldown               = 120
 }
+resource "aws_iam_role_policy" "kms_decrypt" {
+  name = "kms-decrypt-ssm"
+  role = aws_iam_role.ec2_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "kms:Decrypt"
+        ],
+        Resource = "arn:aws:kms:us-east-1:272183979798:key/YOUR-KMS-KEY-ID"
+      }
+    ]
+  })
+}

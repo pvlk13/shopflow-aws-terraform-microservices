@@ -90,7 +90,7 @@ resource "aws_lb_listener" "http" {
 }
 
 resource "aws_lb_listener_rule" "users_rule" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 10
 
   action {
@@ -106,7 +106,7 @@ resource "aws_lb_listener_rule" "users_rule" {
 }
 
 resource "aws_lb_listener_rule" "products_rule" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 20
 
   action {
@@ -122,7 +122,7 @@ resource "aws_lb_listener_rule" "products_rule" {
 }
 
 resource "aws_lb_listener_rule" "orders_rule" {
-  listener_arn = aws_lb_listener.http.arn
+  listener_arn = aws_lb_listener.https.arn
   priority     = 30
 
   action {

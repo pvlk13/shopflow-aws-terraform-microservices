@@ -1,24 +1,69 @@
 #!/bin/bash
+set -euo pipefail
+
+exec > >(tee /var/log/user-data.log | logger -t user-data -s 2>/dev/console) 2>&1
+
+REGION="us-east-1"
+ACCOUNT_ID="272183979798"
+REPO_DIR="/home/ec2-user/shopflow-aws-terraform-microservices"
+
+echo "Starting bootstrap..."
+
 dnf update -y
-dnf install -y docker git postgresql15
+dnf install -y docker git postgresql15 awscli
+
 systemctl enable docker
 systemctl start docker
+
 usermod -aG docker ec2-user
 
-curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
+mkdir -p /usr/local/lib/docker/cli-plugins
+curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" \
+  -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-cd /home/ec2-user
-git clone https://github.com/pvlk13/shopflow-aws-terraform-microservices.git
-cd /home/ec2-user/shopflow-aws-terraform-microservices
+if [ ! -d "$REPO_DIR" ]; then
+  cd /home/ec2-user
+  git clone https://github.com/pvlk13/shopflow-aws-terraform-microservices.git
+fi
 
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 272183979798.dkr.ecr.us-east-1.amazonaws.com
+cd "$REPO_DIR"
 
-DB_HOST=$(aws ssm get-parameter --name "/shopflow/db/host" --query "Parameter.Value" --output text --region us-east-1)
-DB_PORT=$(aws ssm get-parameter --name "/shopflow/db/port" --query "Parameter.Value" --output text --region us-east-1)
-DB_NAME=$(aws ssm get-parameter --name "/shopflow/db/name" --query "Parameter.Value" --output text --region us-east-1)
-DB_USER=$(aws ssm get-parameter --name "/shopflow/db/user" --query "Parameter.Value" --output text --region us-east-1)
-DB_PASSWORD=$(aws ssm get-parameter --name "/shopflow/db/password" --with-decryption --query "Parameter.Value" --output text --region us-east-1)
+aws ecr get-login-password --region "$REGION" \
+  | docker login --username AWS --password-stdin "${ACCOUNT_ID}.dkr.ecr.${REGION}.amazonaws.com"
+
+get_param() {
+  local name="$1"
+  local decrypt="${2:-false}"
+
+  if [ "$decrypt" = "true" ]; then
+    aws ssm get-parameter \
+      --name "$name" \
+      --with-decryption \
+      --query 'Parameter.Value' \
+      --output text \
+      --region "$REGION"
+  else
+    aws ssm get-parameter \
+      --name "$name" \
+      --query 'Parameter.Value' \
+      --output text \
+      --region "$REGION"
+  fi
+}
+
+DB_HOST="$(get_param /shopflow/db/host)"
+DB_PORT="$(get_param /shopflow/db/port)"
+DB_NAME="$(get_param /shopflow/db/name)"
+DB_USER="$(get_param /shopflow/db/user)"
+DB_PASSWORD="$(get_param /shopflow/db/password true)"
+
+for v in DB_HOST DB_PORT DB_NAME DB_USER DB_PASSWORD; do
+  if [ -z "${!v}" ] || [ "${!v}" = "None" ]; then
+    echo "ERROR: $v is empty"
+    exit 1
+  fi
+done
 
 cat > .env <<EOF
 DB_HOST=$DB_HOST
@@ -43,6 +88,8 @@ PGPASSWORD="$DB_PASSWORD" PGSSLMODE=require psql \
   -p "$DB_PORT" \
   -U "$DB_USER" \
   -d "$DB_NAME" \
-  -f /home/ec2-user/shopflow-aws-terraform-microservices/db/init.sql
+  -f "$REPO_DIR/db/init.sql"
 
-docker-compose up -d
+docker compose up -d
+
+echo "Bootstrap completed successfully."

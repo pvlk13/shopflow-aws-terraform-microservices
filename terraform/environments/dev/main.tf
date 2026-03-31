@@ -2,6 +2,14 @@ provider "aws" {
   region = var.aws_region
 }
 
+terraform {
+  required_providers {
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
+  }
+}
 module "vpc" {
  source               = "../../modules/vpc"
  project_name         = var.project_name
@@ -26,8 +34,9 @@ module "rds" {
   db_sg_id              = module.security_groups.db_sg_id
   db_name               = var.db_name
   db_username           = var.db_username
-  db_password           = var.db_password
+  
 }
+
 module "alb" {
   source            = "../../modules/alb"
   project_name      = var.project_name
