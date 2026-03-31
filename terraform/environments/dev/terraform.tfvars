@@ -6,6 +6,7 @@ private_app_subnets = ["10.0.11.0/24", "10.0.12.0/24"]
 private_db_subnets  = ["10.0.21.0/24", "10.0.22.0/24"]
 availability_zones  = ["us-east-1a", "us-east-1b"]
 allowed_ssh_cidrs = ["62.45.86.198/32"]
+certificate_arn =   "arn:aws:acm:us-east-1:272183979798:certificate/53696b97-f28d-490c-9618-1b763039d609"
 ami_id        = "ami-02dfbd4ff395f2a1b" # Amazon Linux 2 (check region!)
 instance_type = "t3.micro"
 key_name      = "shopflow-key" # Make sure to create this key pair in AWS and update the name here

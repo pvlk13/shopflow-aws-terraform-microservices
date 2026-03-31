@@ -36,6 +36,7 @@ module "alb" {
   public_subnet_ids = module.vpc.public_subnet_ids
   target_port       = 8015
   health_check_path = "/health"
+  certificate_arn = var.certificate_arn
 }
 
 module "asg" {

@@ -65,3 +65,6 @@ variable "max_size" {
   type = number
 }
 
+variable "certificate_arn" {
+  type = string
+}
