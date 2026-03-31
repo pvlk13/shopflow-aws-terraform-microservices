@@ -32,3 +32,5 @@ crash.log
 *.png
 *.jpg
 *.jpeg
+
+.env
