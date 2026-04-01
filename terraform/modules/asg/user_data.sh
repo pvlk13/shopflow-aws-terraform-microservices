@@ -90,6 +90,8 @@ PGPASSWORD="$DB_PASSWORD" PGSSLMODE=require psql \
   -d "$DB_NAME" \
   -f "$REPO_DIR/db/init.sql"
 
+docker compose run --rm flyway  
+
 docker compose up -d
 
 echo "Bootstrap completed successfully."

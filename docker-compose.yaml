@@ -30,3 +30,27 @@ services:
     depends_on:
       - user-service
       - product-service
+
+  flyway:
+    image: flyway/flyway:latest
+    command: >
+      -url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      -user=${DB_USER}
+      -password=${DB_PASSWORD}
+      -locations=filesystem:/flyway/sql
+      migrate
+    volumes:
+      - ./db/migration:/flyway/sql
+    restart: "no"    
+
+  flyway-seed:
+    image: flyway/flyway:latest
+    command: >
+      -url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      -user=${DB_USER}
+      -password=${DB_PASSWORD}
+      -locations=filesystem:/flyway/sql
+      migrate
+    volumes:
+      - ./db/seed:/flyway/sql
+    restart: "no"  
