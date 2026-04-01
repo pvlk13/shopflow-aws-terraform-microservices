@@ -46,12 +46,12 @@ services:
   flyway-seed:
     image: flyway/flyway:latest
     command: >
-      -url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
-      -user=${DB_USER}
-      -password=${DB_PASSWORD}
-      -locations=filesystem:/flyway/sql
-      -table=flyway_seed_history
-      migrate
+      - -url=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+      - -user=${DB_USER}
+      - -password=${DB_PASSWORD}
+      - -locations=filesystem:/flyway/sql
+      - -table=flyway_seed_history
+      - migrate
     volumes:
       - ./db/seed:/flyway/sql
     restart: "no"  
