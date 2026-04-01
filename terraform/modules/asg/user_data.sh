@@ -82,15 +82,9 @@ until PGPASSWORD="$DB_PASSWORD" PGSSLMODE=require psql \
   echo "DB not ready yet..."
   sleep 5
 done
-
-PGPASSWORD="$DB_PASSWORD" PGSSLMODE=require psql \
-  -h "$DB_HOST" \
-  -p "$DB_PORT" \
-  -U "$DB_USER" \
-  -d "$DB_NAME" \
-  -f "$REPO_DIR/db/init.sql"
-
 docker compose run --rm flyway  
+
+docker compose run --rm flyway-seed
 
 docker compose up -d
 
