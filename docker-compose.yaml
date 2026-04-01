@@ -50,6 +50,7 @@ services:
       -user=${DB_USER}
       -password=${DB_PASSWORD}
       -locations=filesystem:/flyway/sql
+      -table=flyway_seed_history
       migrate
     volumes:
       - ./db/seed:/flyway/sql
