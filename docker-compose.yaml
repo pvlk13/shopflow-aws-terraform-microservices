@@ -51,6 +51,7 @@ services:
       -password=${DB_PASSWORD}
       -locations=filesystem:/flyway/sql
       -table=flyway_seed_history
+      -baselineOnMigrate=true
       migrate
     volumes:
       - ./db/seed:/flyway/sql
