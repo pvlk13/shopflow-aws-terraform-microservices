@@ -10,7 +10,7 @@ certificate_arn =   "arn:aws:acm:us-east-1:272183979798:certificate/53696b97-f28
 ami_id        = "ami-02dfbd4ff395f2a1b" # Amazon Linux 2 (check region!)
 instance_type = "t3.micro"
 key_name      = "shopflow-key" # Make sure to create this key pair in AWS and update the name here
-desired_capacity = 1 # to test alarm 
+desired_capacity = 2 # to test alarm 
 min_size         = 1
 max_size         = 2
 
