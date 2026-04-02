@@ -342,50 +342,137 @@ The repository includes demo seed data for:
 This is useful for local testing and quick demos.
 
 ---
+## 🐳 Docker & ECR Workflow (Build → Push → Deploy)
 
-## 🐳 Docker and local orchestration
+This project uses **Dockerized microservices** with images stored in **Amazon Elastic Container Registry (ECR)**.
 
-The repository contains a `docker-compose.yaml` file that runs:
-
-- `user-service`
-- `product-service`
-- `order-service`
-- `flyway`
-- `flyway-seed`
-
-### Important detail
-The compose file pulls service images from **Amazon ECR**, which means local Compose usage assumes those images are already built and pushed.
-
-### Port mapping
-- user-service → `8001:8001`
-- product-service → `8010:8002`
-- order-service → `8015:8003`
-
-This port mapping aligns with the ALB target group strategy used in Terraform, where the load balancer forwards to host ports that map into the actual service container ports.
+To run the system (locally or on AWS), images must be built and pushed to ECR.
 
 ---
 
-## 🚀 Request flow
+### 🏗️ Multi-Architecture Image Builds
 
-A typical request flow looks like this:
+Depending on your system architecture (e.g., Apple Silicon vs AWS EC2), you may need to build images for a specific platform:
 
-### User flow
-1. Client sends `POST /users/register`
-2. ALB routes `/users/*` to **user-service**
-3. user-service writes user data into PostgreSQL
+- 🖥️ Local (Mac M1/M2): `linux/arm64`
+- ☁️ AWS EC2: `linux/amd64`
 
-### Product flow
-1. Client sends `GET /products`
-2. ALB routes `/products` to **product-service**
-3. product-service returns in-memory catalog data
+👉 Use Docker Buildx for compatibility:
 
-### Order flow
-1. Client sends `POST /orders`
-2. ALB routes `/orders` to **order-service**
-3. order-service stores the order in PostgreSQL
+```bash
+docker buildx create --use
+docker buildx inspect --bootstrap
+```
 
 ---
 
+### 🔐 Authenticate with AWS ECR
+
+```bash
+aws ecr get-login-password --region <your-region> \
+| docker login --username AWS --password-stdin <account-id>.dkr.ecr.<region>.amazonaws.com
+```
+
+---
+
+### 📦 Create ECR Repositories (if not created)
+
+```bash
+aws ecr create-repository --repository-name user-service
+aws ecr create-repository --repository-name product-service
+aws ecr create-repository --repository-name order-service
+```
+
+---
+
+### 🏗️ Build & Tag Docker Images
+
+#### 👤 User Service (FastAPI)
+
+```bash
+docker buildx build \
+  --platform linux/amd64 \
+  -t user-service \
+  ./services/user-service
+
+docker tag user-service:latest <account-id>.dkr.ecr.<region>.amazonaws.com/user-service:latest
+```
+
+---
+
+#### 📦 Product Service (Go)
+
+```bash
+docker buildx build \
+  --platform linux/amd64 \
+  -t product-service \
+  ./services/product-service
+
+docker tag product-service:latest <account-id>.dkr.ecr.<region>.amazonaws.com/product-service:latest
+```
+
+---
+
+#### 🧾 Order Service (Spring Boot)
+
+```bash
+docker buildx build \
+  --platform linux/amd64 \
+  -t order-service \
+  ./services/order-service
+
+docker tag order-service:latest <account-id>.dkr.ecr.<region>.amazonaws.com/order-service:latest
+```
+
+---
+
+### 🚀 Push Images to ECR
+
+```bash
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/user-service:latest
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/product-service:latest
+docker push <account-id>.dkr.ecr.<region>.amazonaws.com/order-service:latest
+```
+
+---
+
+### ⚙️ How This Connects to Infrastructure
+
+- EC2 instances in the **Auto Scaling Group (ASG)** pull images from ECR  
+- IAM roles attached to EC2 allow secure access to ECR  
+- Services are launched using Docker (via user-data / scripts)  
+- ALB routes traffic to the correct service ports  
+
+---
+
+### 📊 Logging Strategy (Container-Level)
+
+- Application logs are written to **stdout/stderr**
+- Docker captures logs per container
+- Logs can be:
+  - viewed locally via `docker logs`
+  - integrated with **AWS CloudWatch Logs** (recommended enhancement)
+
+```bash
+docker logs <container-id>
+```
+
+👉 Future improvement:
+- Centralized logging using **CloudWatch Agent / Fluent Bit**
+- Structured logging (JSON format)
+
+---
+
+### 💡 Why This Matters
+
+This workflow demonstrates:
+
+- ✅ Real-world container lifecycle (build → tag → push → deploy)  
+- ✅ Multi-architecture image handling  
+- ✅ Secure image distribution via ECR  
+- ✅ Production-ready deployment pattern  
+
+---
 ## 📂 Repository structure
 
 ```text
@@ -558,21 +645,109 @@ If you want to keep a visual in the README, you can use the image already in the
 
 ---
 
-## 💼 Why this project stands out
+## 🚀 Advanced Features (What Makes This Project Stand Out)
 
-This project is strong from a resume and portfolio perspective because it shows:
+### 📈 Auto Scaling with Intelligent Alerts
 
-- **polyglot backend development**
-- **microservices decomposition**
-- **AWS infrastructure provisioning with Terraform**
-- **private/public subnet design**
-- **load balancing and auto scaling**
-- **database migration management**
-- **monitoring and alarms**
-- **container packaging**
+This project implements **dynamic scaling using AWS Auto Scaling Groups (ASG)** driven by **CloudWatch alarms**:
 
-It demonstrates that the project is not only about writing APIs, but also about designing how those APIs run in a cloud environment.
+- 🔺 **Scale Out Trigger**
+  - When EC2 CPU utilization exceeds threshold
+  - Automatically adds new instances
+  - Ensures system handles increased traffic
 
+- 🔻 **Scale In Trigger**
+  - When CPU utilization drops below threshold
+  - Reduces number of instances
+  - Optimizes cost and resource usage
+
+- 📊 Metrics Monitored:
+  - EC2 CPU Utilization
+  - ALB Target Health
+  - Request Load
+
+👉 This demonstrates **real-world elasticity and cost optimization strategies** used in production systems.
+
+---
+
+### 🧯 Failover & High Availability
+
+The architecture is designed for **fault tolerance and resilience**:
+
+- ✅ Services run in **multiple subnets across availability zones**
+- ✅ **Application Load Balancer (ALB)** automatically routes traffic to healthy instances
+- ✅ **Unhealthy instances are detected and removed**
+- ✅ Auto Scaling replaces failed instances automatically
+
+#### 🔁 Failover Scenario Demonstrated
+
+- If an instance becomes unhealthy or crashes:
+  - ALB stops routing traffic to it
+  - CloudWatch detects unhealthy targets
+  - ASG launches a replacement instance
+  - Traffic continues without downtime
+
+👉 This demonstrates **zero/minimal downtime architecture**, a key production requirement.
+
+---
+
+### 🗄️ Database Versioning with Flyway
+
+The project uses **Flyway** for managing database schema and seed data:
+
+#### 📂 Structure
+```
+db/
+├── migration/
+│   ├── V1__create_users_table.sql
+│   ├── V2__create_orders_table.sql
+└── seed/
+    └── R__seed_demo_data.sql
+```
+
+#### 🔑 Key Benefits
+
+- 📜 Version-controlled schema changes  
+- 🔁 Repeatable migrations for consistent environments  
+- ⚡ Automated DB setup during deployment  
+- 🧪 Reliable local and cloud reproducibility  
+
+👉 This reflects **industry-standard database management practices**.
+
+---
+
+### 📊 Observability & Monitoring
+
+- 📈 CloudWatch dashboards for system metrics  
+- 🚨 Alerts for:
+  - High CPU usage
+  - Low CPU usage
+  - Unhealthy ALB targets  
+
+👉 Enables **proactive monitoring and automated scaling decisions**.
+
+---
+
+## 💼 Why This Project Stands Out (Recruiter Perspective)
+
+This project goes beyond a typical CRUD app by demonstrating:
+
+- ✅ **Cloud-native architecture design**
+- ✅ **Infrastructure as Code (Terraform)**
+- ✅ **Auto scaling with real metrics**
+- ✅ **Failover and resilience handling**
+- ✅ **Database migration strategy (Flyway)**
+- ✅ **Polyglot microservices (Python, Go, Java)**
+---
+
+## 🔥 Key Engineering Achievements
+
+- Designed and deployed a **multi-tier AWS architecture** using Terraform  
+- Implemented **auto scaling based on CloudWatch alarms**  
+- Built **fault-tolerant system with automatic failover handling**  
+- Managed database lifecycle using **Flyway migrations and seeding**  
+- Developed **polyglot microservices system** with independent services  
+- Integrated **monitoring and alerting for production readiness**  
 ---
 ## 🔮 Suggested next enhancements
 
