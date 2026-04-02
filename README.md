@@ -75,14 +75,30 @@ The system follows a **three-tier VPC design**:
 - Internet Gateway (IGW)
 - Public route table (`0.0.0.0/0 → IGW`)
 
+<p align="center">
+  <img src="docs/images/igw.png" width="800"/>
+</p>
+
 ### 🔒 Private Application Layer
 - EC2 instances (Auto Scaling Group)
 - NAT Gateway for outbound internet access
 - Private route table (`0.0.0.0/0 → NAT`)
 
+<p align="center">
+  <img src="docs/images/nat.png" width="800"/>
+</p>
+
+<p align="center">
+  <img src=".github/images/auto_scaling_groups.png" width="800"/>
+</p>
+
 ### 🗄️ Private Database Layer
 - PostgreSQL (RDS)
 - No direct internet access
+
+<p align="center">
+  <img src="docs/images/db_short.png" width="800"/>
+</p>
 
 ### 🔐 Security Groups
 
@@ -91,6 +107,9 @@ The system follows a **three-tier VPC design**:
 - **DB SG:** Allows PostgreSQL only from app layer  
 
 👉 Ensures strict **layer isolation and secure communication**
+<p align="center">
+  <img src="docs/images/vpc_image.png" width="800"/>
+</p>
 
 ---
 
