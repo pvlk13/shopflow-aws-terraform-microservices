@@ -236,7 +236,85 @@ terraform apply
 ```
 
 ---
+## 🌍 Final Access URLs / Domain Endpoints
 
+After deployment, the application is accessible through the **Application Load Balancer (ALB) DNS endpoint** or your **custom domain** if Route 53 / ACM is configured.
+
+### 🔗 Main Entry Point
+- 🌐 **Base URL:** `http://<alb-dns-name>` or `https://<your-domain>`
+
+> Replace the placeholder above with the final ALB DNS name from Terraform output or your mapped custom domain.
+
+---
+
+### 🧭 Service Endpoints
+
+#### 👤 User Service
+- 📝 Register User: `http://<alb-dns-name>/users/register`
+- 🔐 Login User: `http://<alb-dns-name>/users/login`
+- 🙍 Get User Profile: `http://<alb-dns-name>/users/profile/{user_id}`
+- ❤️ Health Check: `http://<alb-dns-name>/health`
+
+#### 📦 Product Service
+- 📃 Get All Products: `http://<alb-dns-name>/products`
+- ➕ Add Product: `http://<alb-dns-name>/products`
+- 🔎 Get Product by ID: `http://<alb-dns-name>/products/{id}`
+- ❤️ Health Check: `http://<alb-dns-name>/health`
+
+#### 🧾 Order Service
+- ➕ Create Order: `http://<alb-dns-name>/orders`
+- 📚 Get All Orders: `http://<alb-dns-name>/orders`
+- 🔎 Get Order by ID: `http://<alb-dns-name>/orders/{id}`
+- 👤 Get Orders by User: `http://<alb-dns-name>/orders/user/{userId}`
+- ❤️ Health Check: `http://<alb-dns-name>/orders/health`
+
+---
+
+### ☁️ Where to Find the Final Domain
+
+You can get the final ALB DNS name from:
+
+```bash
+terraform output
+```
+
+or specifically:
+
+```bash
+terraform output alb_dns_name
+```
+
+If a custom domain is configured, that domain can be mapped to the ALB using:
+
+- 🌐 **Amazon Route 53**
+- 🔒 **AWS Certificate Manager (ACM)** for HTTPS
+
+---
+
+### ✅ Example
+
+```text
+Base URL: http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com
+```
+
+Example requests:
+
+```text
+http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/products
+http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/users/register
+http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/orders
+```
+
+---
+
+### 💡 Notes
+
+- 🚦 All traffic first reaches the **ALB**
+- 🔀 The ALB routes requests to the correct microservice based on path rules
+- 🛡️ Backend instances remain private and are not directly exposed to the internet
+- 🌍 If a custom domain is added, it becomes the user-facing endpoint for the entire platform
+
+---
 ## 💼 Key Engineering Achievements
 
 - Designed **multi-AZ cloud architecture** with failover  
