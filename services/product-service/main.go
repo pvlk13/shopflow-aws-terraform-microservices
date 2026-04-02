@@ -31,6 +31,23 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		"service": "product-service",
 	})
 }
+func createProductHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("POST /products")
+
+	var newProduct Product
+	err := json.NewDecoder(r.Body).Decode(&newProduct)
+	if err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	newProduct.ID = len(products) + 1
+	products = append(products, newProduct)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	_ = json.NewEncoder(w).Encode(newProduct)
+}
 
 func listProductsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GET /products")
@@ -64,7 +81,15 @@ func getProductHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", healthHandler)
-	mux.HandleFunc("/products", listProductsHandler)
+	mux.HandleFunc("/products", func(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		listProductsHandler(w, r)
+	} else if r.Method == http.MethodPost {
+		createProductHandler(w, r)
+	} else {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	}
+})
 	mux.HandleFunc("/products/", getProductHandler)
 
 	log.Println("product-service running on port 8002")

@@ -59,7 +59,6 @@ def login_user(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
         "user_id": user.id
     }
 
-
 @app.get("/users/profile/{user_id}")
 def get_profile(user_id: int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == user_id).first()
