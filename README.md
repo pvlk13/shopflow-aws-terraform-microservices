@@ -84,21 +84,15 @@ The system follows a **three-tier VPC design**:
 - NAT Gateway for outbound internet access
 - Private route table (`0.0.0.0/0 → NAT`)
 
-<p align="center">
-  <img src="docs/images/nat.png" width="800"/>
-</p>
+<img width="2714" height="1156" alt="Image" src="https://github.com/user-attachments/assets/47c8e8b6-abd5-4dfb-b18f-a47d1c572395" />
 
-<p align="center">
-  <img src=".github/images/auto_scaling_groups.png" width="800"/>
-</p>
+<img width="2924" height="1318" alt="Image" src="https://github.com/user-attachments/assets/96be0422-a5a2-48a5-9039-30fd899e3e0b" />
 
 ### 🗄️ Private Database Layer
 - PostgreSQL (RDS)
 - No direct internet access
 
-<p align="center">
-  <img src="docs/images/db_short.png" width="800"/>
-</p>
+<img width="2402" height="526" alt="Image" src="https://github.com/user-attachments/assets/663b5009-5be7-4fe5-8d5c-1da4c4bfe867" />
 
 ### 🔐 Security Groups
 
@@ -107,9 +101,8 @@ The system follows a **three-tier VPC design**:
 - **DB SG:** Allows PostgreSQL only from app layer  
 
 👉 Ensures strict **layer isolation and secure communication**
-<p align="center">
-  <img src="docs/images/vpc_image.png" width="800"/>
-</p>
+
+<img width="2982" height="1560" alt="Image" src="https://github.com/user-attachments/assets/9b419b7b-652c-4bc3-a624-d4d1948ff094" />
 
 ---
 
