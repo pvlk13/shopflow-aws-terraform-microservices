@@ -1,6 +1,9 @@
 name: Deploy ShopFlow
 
 on:
+  workflow_run:
+    workflows: ["Infra Terraform"]
+    types: [completed]
   push:
     branches: [main]
     paths:
@@ -10,8 +13,8 @@ on:
 
 jobs:
   build-and-push:
-    runs-on: ubuntu-latest
-
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'push' }}
+    runs-on: ubuntu-latest    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
