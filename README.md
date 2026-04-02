@@ -329,12 +329,9 @@ http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/orders
 ## 🔮 Future Improvements
 
 - JWT authentication  
-- Persistent product database  
-- CI/CD pipeline (GitHub Actions)  
+- Persistent product database   
 - Kubernetes (EKS) migration  
 - Centralized logging (CloudWatch / ELK)
-- Better UI
-
 ---
 
 ## 👨‍💻 Author
