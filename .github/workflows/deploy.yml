@@ -31,3 +31,8 @@ jobs:
             -t 272183979798.dkr.ecr.us-east-1.amazonaws.com/shopflow-order-service:latest \
             ./services/order-service \
             --push
+      - name: Refresh ASG
+        run: |
+          aws autoscaling start-instance-refresh \
+          --auto-scaling-group-name shopflow-asg \
+          --region us-east-1      
