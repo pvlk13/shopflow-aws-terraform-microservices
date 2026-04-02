@@ -3,6 +3,10 @@ name: Deploy ShopFlow
 on:
   push:
     branches: [main]
+    paths:
+      - "services/**"
+      - "docker-compose.yaml"
+      - ".github/workflows/deploy.yml"
 
 jobs:
   build-and-push:
