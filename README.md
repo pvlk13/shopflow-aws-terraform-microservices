@@ -75,9 +75,7 @@ The system follows a **three-tier VPC design**:
 - Internet Gateway (IGW)
 - Public route table (`0.0.0.0/0 → IGW`)
 
-<p align="center">
-  <img src="docs/images/igw.png" width="800"/>
-</p>
+<img width="2982" height="1560" alt="Image" src="https://github.com/user-attachments/assets/74db6dd0-438e-4b19-974e-c876894dfa53" />
 
 ### 🔒 Private Application Layer
 - EC2 instances (Auto Scaling Group)
@@ -87,6 +85,8 @@ The system follows a **three-tier VPC design**:
 <img width="2714" height="1156" alt="Image" src="https://github.com/user-attachments/assets/47c8e8b6-abd5-4dfb-b18f-a47d1c572395" />
 
 <img width="2924" height="1318" alt="Image" src="https://github.com/user-attachments/assets/96be0422-a5a2-48a5-9039-30fd899e3e0b" />
+
+<img width="2840" height="1184" alt="Image" src="https://github.com/user-attachments/assets/650f00c5-2e50-4b84-8bf5-bb44b599e37a" />
 
 ### 🗄️ Private Database Layer
 - PostgreSQL (RDS)
@@ -142,6 +142,15 @@ terraform/
 - ASG (auto scaling)
 - RDS (PostgreSQL)
 - CloudWatch (monitoring & alarms)
+
+<img width="2832" height="1336" alt="Image" src="https://github.com/user-attachments/assets/05856727-0a37-439e-892d-49973d6e564c" />
+
+<img width="2348" height="880" alt="Image" src="https://github.com/user-attachments/assets/67dd7eb7-22e8-4323-b751-5cf064196216" />
+
+<img width="2960" height="1424" alt="Image" src="https://github.com/user-attachments/assets/0a02efdf-4395-4b6c-8fa8-5e5980f26ea5" />
+
+<img width="2334" height="1038" alt="Image" src="https://github.com/user-attachments/assets/65018c5c-2015-4f78-a503-d4f1928e9e59" />
+
 ---
 ### 📈 Auto Scaling with Intelligent Alerts
 
@@ -182,6 +191,10 @@ The architecture is designed for **fault tolerance and resilience**:
   - CloudWatch detects unhealthy targets
   - ASG launches a replacement instance
   - Traffic continues without downtime
+
+<img width="2420" height="1120" alt="Image" src="https://github.com/user-attachments/assets/f53b0317-5e1e-49a7-856d-36b3801381a6" />
+
+<img width="2406" height="758" alt="Image" src="https://github.com/user-attachments/assets/d4abcd05-9d10-4daa-9437-6569f2d405e9" />
 
 👉 This demonstrates **zero/minimal downtime architecture**, a key production requirement.
 
