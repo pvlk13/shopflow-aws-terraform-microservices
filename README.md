@@ -1,247 +1,625 @@
-# 🚀 ShopFlow AWS Terraform Microservices
+# 🛒 ShopFlow — AWS Terraform Microservices
 
 <p align="center">
   <img src="https://img.shields.io/badge/AWS-Cloud-orange?style=for-the-badge&logo=amazonaws" />
-  <img src="https://img.shields.io/badge/Terraform-IaC-purple?style=for-the-badge&logo=terraform" />
-  <img src="https://img.shields.io/badge/Microservices-Architecture-blue?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Status-Active-success?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Terraform-IaC-844FBA?style=for-the-badge&logo=terraform&logoColor=white" />
+  <img src="https://img.shields.io/badge/FastAPI-User%20Service-009688?style=for-the-badge&logo=fastapi&logoColor=white" />
+  <img src="https://img.shields.io/badge/Go-Product%20Service-00ADD8?style=for-the-badge&logo=go&logoColor=white" />
+  <img src="https://img.shields.io/badge/Spring%20Boot-Order%20Service-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-336791?style=for-the-badge&logo=postgresql&logoColor=white" />
 </p>
-
----
-
-## 🌟 Project Overview
-
-**ShopFlow** is a **production-grade microservices architecture** deployed on AWS using **Terraform (Infrastructure as Code)**.
-
-This project demonstrates how to design, provision, and manage scalable cloud infrastructure while following **modern DevOps and distributed system principles**.
-
----
-
-## 🧠 What Makes This Project Special?
-
-✔️ Real-world AWS architecture  
-✔️ Fully automated infrastructure using Terraform  
-✔️ Microservices with independent scalability  
-✔️ Clean modular design (reusable Terraform modules)  
-✔️ Designed with production best practices  
-
----
-
-## 🏗️ Architecture Diagram
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/awslabs/aws-icons-for-architecture/main/Architecture%20Diagrams/Reference%20Architectures/microservices.png" width="700"/>
+  <b>Polyglot microservices e-commerce platform deployed on AWS with Terraform</b>
 </p>
 
 ---
 
-## 🧩 Architecture Explanation
+## ✨ Overview
 
-The system follows a **microservices-based architecture** where each service is independently deployed and managed.
+**ShopFlow** is a portfolio-grade, cloud-focused microservices project that demonstrates how to provision and run a distributed application on AWS using **Terraform** and a **polyglot service architecture**.
 
-### 🔹 Flow
+The project combines:
 
-1. Client requests enter through **API Gateway / Load Balancer**
-2. Requests are routed to respective microservices:
-   - User Service
-   - Product Service
-   - Order Service
-3. Services communicate via APIs or messaging
-4. Data is stored in managed databases (RDS/DynamoDB)
-5. Static assets are stored in S3
+- **User Service** built with **Python FastAPI**
+- **Product Service** built with **Go**
+- **Order Service** built with **Java Spring Boot**
+- **PostgreSQL** for persistent data
+- **Flyway** for schema migrations and seed data
+- **Terraform** for provisioning AWS infrastructure
+- **Application Load Balancer + Auto Scaling + CloudWatch** for production-style deployment patterns
 
----
-
-## ☁️ AWS Services Used
-
-| Service | Purpose |
-|--------|--------|
-| **VPC** | Isolated network environment |
-| **EC2 / ECS** | Compute layer for services |
-| **RDS / DynamoDB** | Database storage |
-| **S3** | Object storage |
-| **IAM** | Access control |
-| **CloudWatch** | Monitoring & logging |
-| **ALB / API Gateway** | Traffic routing |
+This repository is designed to showcase both **application engineering** and **cloud infrastructure engineering** in a single project.
 
 ---
 
-## 🛠️ Tech Stack
+## 🎯 What this project demonstrates
 
-- ☁️ AWS Cloud  
-- 📜 Terraform (IaC)  
-- 🧱 Microservices Architecture  
-- 🔗 REST APIs  
-- ⚙️ DevOps Practices  
+- Designing a **microservices architecture** with independent services
+- Using **different languages/frameworks** in one system
+- Provisioning AWS resources with **modular Terraform**
+- Running services behind an **Application Load Balancer**
+- Using **private application and database subnets**
+- Managing a **PostgreSQL** database with **Flyway migrations**
+- Storing database connection values in **AWS Systems Manager Parameter Store**
+- Adding **CloudWatch dashboards and scaling alarms**
+- Packaging services with **Docker**
 
 ---
 
-## 📂 Project Structure
+## 🏗️ Architecture
 
+```text
+                           Internet
+                              │
+                              ▼
+                    ┌────────────────────┐
+                    │  Application Load  │
+                    │     Balancer       │
+                    │   HTTP → HTTPS     │
+                    └─────────┬──────────┘
+                              │
+          ┌───────────────────┼───────────────────┐
+          │                   │                   │
+          ▼                   ▼                   ▼
+ ┌────────────────┐  ┌────────────────┐  ┌────────────────┐
+ │  User Service  │  │ Product Service│  │  Order Service │
+ │  FastAPI       │  │ Go             │  │ Spring Boot    │
+ │  Port 8001     │  │ Port 8002      │  │ Port 8003      │
+ └────────┬───────┘  └────────────────┘  └────────┬───────┘
+          │                                        │
+          └──────────────────────┬─────────────────┘
+                                 ▼
+                     ┌────────────────────────┐
+                     │     PostgreSQL RDS     │
+                     │   users + orders data  │
+                     └────────────────────────┘
+
+Infrastructure layout:
+- Public subnets: ALB + NAT Gateway
+- Private app subnets: EC2 Auto Scaling Group
+- Private DB subnets: RDS PostgreSQL
 ```
+
+---
+
+## 🧠 Architecture deep dive
+
+### 1) Entry layer
+Traffic enters through an **AWS Application Load Balancer (ALB)**.  
+The ALB redirects **HTTP (80)** traffic to **HTTPS (443)** and uses listener rules to route requests by path:
+
+- `/users/*` → **user-service**
+- `/products` and `/products/*` → **product-service**
+- `/orders` and `/orders/*` → **order-service**
+
+### 2) Compute layer
+Application instances run inside an **Auto Scaling Group** using a launch template.  
+The ASG deploys EC2 instances in **private application subnets**, which is a good production-oriented design because app instances are not directly exposed to the public internet.
+
+### 3) Data layer
+The project provisions **Amazon RDS PostgreSQL** inside **private DB subnets**.  
+The database is used by:
+
+- **user-service** for user registration/login/profile data
+- **order-service** for order storage
+
+### 4) Database initialization
+The project uses **Flyway** to apply:
+
+- schema migrations in `db/migration`
+- seed data in `db/seed`
+
+This keeps schema setup versioned and reproducible.
+
+### 5) Secrets/config handling
+Database host, port, username, password, and DB name are stored in **AWS Systems Manager Parameter Store**, which is a strong step toward cleaner secret/config management.
+
+### 6) Monitoring and scaling
+The Terraform setup includes:
+
+- **CloudWatch dashboard**
+- alarms for:
+  - high EC2 CPU → scale out
+  - low EC2 CPU → scale in
+  - unhealthy ALB targets
+
+This makes the infrastructure feel much closer to a real deployment than a simple demo stack.
+
+---
+
+## ☁️ AWS infrastructure provisioned with Terraform
+
+The Terraform code is organized into reusable modules:
+
+```text
+terraform/
+├── environments/
+│   └── dev/
+│       ├── main.tf
+│       ├── variables.tf
+│       ├── outputs.tf
+│       └── terraform.tfvars
+└── modules/
+    ├── alb/
+    ├── asg/
+    ├── cloudwatch/
+    ├── ec2/
+    ├── rds/
+    ├── security-groups/
+    └── vpc/
+```
+
+### Modules included
+
+#### 🌐 `vpc`
+Creates:
+
+- VPC
+- Internet Gateway
+- public subnets
+- private app subnets
+- private DB subnets
+- public route table
+- NAT Gateway
+- private route table for app subnets
+
+#### 🔐 `security-groups`
+Defines three main security groups:
+
+- **ALB security group**
+  - allows inbound HTTP/HTTPS from the internet
+- **App security group**
+  - allows app traffic from the ALB
+  - temporarily allows SSH from configured CIDRs
+- **DB security group**
+  - allows PostgreSQL traffic only from the app security group
+
+#### 🗄️ `rds`
+Creates:
+
+- PostgreSQL RDS instance
+- DB subnet group
+- random DB password
+- SSM parameters for DB connection values
+
+#### ⚖️ `alb`
+Creates:
+
+- Application Load Balancer
+- target groups for each service
+- HTTP listener with redirect to HTTPS
+- HTTPS listener with path-based routing rules
+
+#### 📈 `asg`
+Creates:
+
+- Launch template
+- Auto Scaling Group
+- IAM role and instance profile
+- scaling policies
+- SSM read access
+- ECR pull permissions
+
+#### 📊 `cloudwatch`
+Creates:
+
+- CloudWatch dashboard
+- CPU alarms for scaling
+- unhealthy host alarm for load balancer health
+
+---
+
+## 🧩 Services
+
+```text
+services/
+├── user-service/
+├── product-service/
+└── order-service/
+```
+
+### 👤 User Service — FastAPI
+**Path:** `services/user-service`  
+**Language/Framework:** Python + FastAPI + SQLAlchemy  
+**Container Port:** `8001`
+
+#### Responsibilities
+- register user
+- login user
+- fetch user profile
+- health check
+
+#### Main endpoints
+- `GET /health`
+- `POST /users/register`
+- `POST /users/login`
+- `GET /users/profile/{user_id}`
+
+#### Notes
+- Uses PostgreSQL via SQLAlchemy
+- User model stores:
+  - `id`
+  - `name`
+  - `email`
+  - `password`
+
+---
+
+### 📦 Product Service — Go
+**Path:** `services/product-service`  
+**Language/Framework:** Go standard library  
+**Container Port:** `8002`
+
+#### Responsibilities
+- list products
+- create product
+- fetch product by ID
+- health check
+
+#### Main endpoints
+- `GET /health`
+- `GET /products`
+- `POST /products`
+- `GET /products/{id}`
+
+#### Notes
+- Current implementation uses an **in-memory product slice**
+- No external database is used for products yet
+- Includes starter demo products:
+  - Laptop
+  - Headphones
+  - Chair
+
+This makes the service simple and fast for demo purposes, while leaving room for a future persistent catalog implementation.
+
+---
+
+### 🧾 Order Service — Spring Boot
+**Path:** `services/order-service`  
+**Language/Framework:** Java 17 + Spring Boot + Spring Data JPA  
+**Container Port:** `8003`
+
+#### Responsibilities
+- create orders
+- list all orders
+- fetch order by ID
+- fetch orders by user
+- health check
+
+#### Main endpoints
+- `POST /orders`
+- `GET /orders`
+- `GET /orders/{id}`
+- `GET /orders/user/{userId}`
+- `GET /orders/health`
+
+#### Notes
+- Uses PostgreSQL through Spring Data JPA
+- Persists `orders` table records with:
+  - `id`
+  - `userId`
+  - `productId`
+  - `quantity`
+  - `status`
+- New orders are created with status: `CREATED`
+
+---
+
+## 🗃️ Database schema and seed data
+
+### Migration files
+```text
+db/
+├── migration/
+│   ├── V1__create_users_table.sql
+│   └── V2__create_orders_table.sql
+└── seed/
+    └── R__seed_demo_data.sql
+```
+
+### Tables created
+
+#### `users`
+- `id`
+- `name`
+- `email`
+- `password`
+
+#### `orders`
+- `id`
+- `user_id`
+- `product_id`
+- `quantity`
+- `status`
+
+### Seed data
+The repository includes demo seed data for:
+
+- sample users
+- sample orders
+
+This is useful for local testing and quick demos.
+
+---
+
+## 🐳 Docker and local orchestration
+
+The repository contains a `docker-compose.yaml` file that runs:
+
+- `user-service`
+- `product-service`
+- `order-service`
+- `flyway`
+- `flyway-seed`
+
+### Important detail
+The compose file pulls service images from **Amazon ECR**, which means local Compose usage assumes those images are already built and pushed.
+
+### Port mapping
+- user-service → `8001:8001`
+- product-service → `8010:8002`
+- order-service → `8015:8003`
+
+This port mapping aligns with the ALB target group strategy used in Terraform, where the load balancer forwards to host ports that map into the actual service container ports.
+
+---
+
+## 🚀 Request flow
+
+A typical request flow looks like this:
+
+### User flow
+1. Client sends `POST /users/register`
+2. ALB routes `/users/*` to **user-service**
+3. user-service writes user data into PostgreSQL
+
+### Product flow
+1. Client sends `GET /products`
+2. ALB routes `/products` to **product-service**
+3. product-service returns in-memory catalog data
+
+### Order flow
+1. Client sends `POST /orders`
+2. ALB routes `/orders` to **order-service**
+3. order-service stores the order in PostgreSQL
+
+---
+
+## 📂 Repository structure
+
+```text
 .
-├── terraform/
-│   ├── modules/         # Reusable infrastructure modules
-│   ├── environments/    # Dev / Prod configurations
-│   └── main.tf
-│
+├── db/
+│   ├── migration/
+│   └── seed/
+├── docs/
+│   └── images/
+│       └── output.png
 ├── services/
 │   ├── user-service/
 │   ├── product-service/
-│   ├── order-service/
-│
-├── scripts/
+│   └── order-service/
+├── terraform/
+│   ├── environments/
+│   │   └── dev/
+│   └── modules/
+├── docker-compose.yaml
 └── README.md
 ```
 
 ---
 
-## ⚙️ Infrastructure Breakdown
+## 🛠️ Tech stack
 
-### 🌐 Networking
-- Custom VPC with public & private subnets  
-- Internet Gateway + NAT Gateway  
-- Secure routing & security groups  
+### Application
+- Python 3.11
+- FastAPI
+- SQLAlchemy
+- Go 1.22
+- Java 17
+- Spring Boot 3.x
+- Spring Data JPA
 
-### 🖥️ Compute
-- Containerized or VM-based services  
-- Auto Scaling enabled  
+### Database
+- PostgreSQL
+- Flyway
 
-### 🗄️ Storage
-- Relational & NoSQL databases  
-- S3 for static files  
+### Infrastructure
+- AWS VPC
+- AWS ALB
+- AWS EC2 Auto Scaling
+- AWS RDS
+- AWS IAM
+- AWS Systems Manager Parameter Store
+- AWS CloudWatch
 
-### 🔐 Security
-- IAM roles with least privilege  
-- Secure network isolation  
+### Delivery
+- Docker
+- Terraform
 
 ---
 
-## 🚀 Deployment Guide
+## ▶️ Run services locally
 
-### ✅ Prerequisites
+### Option 1 — run service by service
 
-- AWS CLI configured  
-- Terraform installed  
-- AWS account  
+#### User service
+```bash
+cd services/user-service
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8001
+```
 
-### 📦 Deploy Infrastructure
+#### Product service
+```bash
+cd services/product-service
+go run main.go
+```
+
+#### Order service
+```bash
+cd services/order-service
+mvn spring-boot:run
+```
+
+> You will need PostgreSQL and the required environment variables for the services that persist data.
+
+---
+
+### Option 2 — run with Docker Compose
+```bash
+docker compose up
+```
+
+> This assumes the referenced ECR images are available and environment variables such as `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` are provided.
+
+---
+
+## ☁️ Deploy infrastructure with Terraform
+
+Terraform is currently structured with a `dev` environment.
 
 ```bash
-git clone https://github.com/pvlk13/shopflow-aws-terraform-microservices.git
-cd shopflow-aws-terraform-microservices
-
+cd terraform/environments/dev
 terraform init
 terraform plan
 terraform apply
 ```
 
+### Example dev settings currently defined
+- region: `us-east-1`
+- 2 public subnets
+- 2 private app subnets
+- 2 private DB subnets
+- desired capacity: `2`
+- min size: `2`
+- max size: `3`
+
 ---
 
-## 🔄 CI/CD (Recommended)
+## 📊 Observability and scaling
 
-You can integrate:
+This project goes beyond simple infrastructure provisioning by also including operational visibility.
 
-- GitHub Actions  
-- AWS CodePipeline  
-- Jenkins  
+### CloudWatch dashboard metrics
+- EC2 CPU utilization
+- ALB request count
+- order-service healthy host count
+- RDS CPU utilization
+- RDS database connections
 
-### Pipeline Flow
+### Scaling behavior
+- scale out when CPU is high
+- scale in when CPU is low
 
+This is a strong portfolio signal because it shows attention not only to deployment, but also to runtime operations.
+
+---
+
+## 🧪 Current API summary
+
+### User Service
+```http
+GET    /health
+POST   /users/register
+POST   /users/login
+GET    /users/profile/{user_id}
 ```
-Code → Build → Test → Terraform Apply → Deploy → Monitor
+
+### Product Service
+```http
+GET    /health
+GET    /products
+POST   /products
+GET    /products/{id}
+```
+
+### Order Service
+```http
+GET    /orders/health
+POST   /orders
+GET    /orders
+GET    /orders/{id}
+GET    /orders/user/{userId}
 ```
 
 ---
 
-## 📊 Scalability & Reliability
+## 🖼️ Sample output
 
-- Auto Scaling Groups  
-- Load Balancing  
-- Stateless microservices  
-- Fault isolation  
+If you want to keep a visual in the README, you can use the image already in the repo:
 
----
-
-## 🔌 Microservices
-
-| Service | Responsibility |
-|--------|---------------|
-| 👤 User Service | Authentication & users |
-| 📦 Product Service | Product catalog |
-| 🧾 Order Service | Order processing |
+```md
+![ShopFlow Output](docs/images/output.png)
+```
 
 ---
 
-## 🧪 Testing Strategy
+## 💼 Why this project stands out
 
-- Unit testing  
-- API integration testing  
-- Terraform validation  
+This project is strong from a resume and portfolio perspective because it shows:
+
+- **polyglot backend development**
+- **microservices decomposition**
+- **AWS infrastructure provisioning with Terraform**
+- **private/public subnet design**
+- **load balancing and auto scaling**
+- **database migration management**
+- **monitoring and alarms**
+- **container packaging**
+
+It demonstrates that the project is not only about writing APIs, but also about designing how those APIs run in a cloud environment.
 
 ---
+## 🔮 Suggested next enhancements
 
-## 📈 Future Enhancements
-
-- 🔐 JWT Authentication  
-- 📡 Event-driven architecture (SNS/SQS/Kafka)  
-- 📊 Monitoring dashboards (Grafana/Prometheus)  
-- ☸️ Kubernetes (EKS migration)  
-
----
-
-## 🎯 Resume Impact (IMPORTANT)
-
-This project demonstrates:
-
-- ✅ Cloud Architecture (AWS)  
-- ✅ Infrastructure as Code (Terraform)  
-- ✅ Microservices Design  
-- ✅ DevOps Practices  
-
-👉 Strong portfolio project for:
-- DevOps Engineer  
-- Cloud Engineer  
-- Backend Engineer  
+- Add **JWT-based authentication and authorization**
+- Persist product catalog in **PostgreSQL or DynamoDB**
+- Add **repository query methods** for more efficient order filtering
+- Add **service-to-service validation** before order creation
+- Add **unit and integration tests**
+- Use **ECS or EKS** for container orchestration
+- Add **structured logging and distributed tracing**
 
 ---
 
 ## 🤝 Contributing
 
+Contributions, suggestions, and improvements are welcome.
+
 ```bash
-git checkout -b feature/new-feature
-git commit -m "Added feature"
-git push origin feature/new-feature
+git checkout -b feature/your-feature
+git commit -m "Add your feature"
+git push origin feature/your-feature
 ```
-
----
-
-## 📄 License
-
-MIT License
 
 ---
 
 ## 👨‍💻 Author
 
-**Pavan (pvlk13)**  
-🚀 Cloud | DevOps | Scalable Systems  
+**Vijayalakshmi**  
+Built for cloud engineering practice, distributed systems learning, and DevOps portfolio development.
 
 ---
 
-## ⭐ Show Your Support
+## 📄 License
 
-If you like this project:
+Add your preferred license here, for example:
 
-⭐ Star the repo  
-🍴 Fork it  
-📢 Share it  
-
----
-
-## 💬 Final Note
-
-This project is a **complete demonstration of real-world cloud engineering practices** and serves as a strong foundation for building scalable distributed systems.
+```text
+MIT License
+```
 
 ---
+
+## ⭐ Support
+
+If you found this project useful:
+
+- Star the repository
+- Fork it
+- Share feedback
+- Build on top of it
