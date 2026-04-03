@@ -307,23 +307,23 @@ After deployment, the application is accessible through the **Application Load B
 ### 🧭 Service Endpoints
 
 #### 👤 User Service
-- 📝 Register User: `http://<alb-dns-name>/users/register`
-- 🔐 Login User: `http://<alb-dns-name>/users/login`
-- 🙍 Get User Profile: `http://<alb-dns-name>/users/profile/{user_id}`
-- ❤️ Health Check: `http://<alb-dns-name>/health`
+- 📝 Register User: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/users/register`
+- 🔐 Login User: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/users/login`
+- 🙍 Get User Profile: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/users/profile/{user_id}`
+- ❤️ Health Check: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/health`
 
 #### 📦 Product Service
-- 📃 Get All Products: `http://<alb-dns-name>/products`
-- ➕ Add Product: `http://<alb-dns-name>/products`
-- 🔎 Get Product by ID: `http://<alb-dns-name>/products/{id}`
-- ❤️ Health Check: `http://<alb-dns-name>/health`
+- 📃 Get All Products: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/products`
+- ➕ Add Product: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/products`
+- 🔎 Get Product by ID: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/products/{id}`
+- ❤️ Health Check: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/health`
 
 #### 🧾 Order Service
-- ➕ Create Order: `http://<alb-dns-name>/orders`
-- 📚 Get All Orders: `http://<alb-dns-name>/orders`
-- 🔎 Get Order by ID: `http://<alb-dns-name>/orders/{id}`
-- 👤 Get Orders by User: `http://<alb-dns-name>/orders/user/{userId}`
-- ❤️ Health Check: `http://<alb-dns-name>/orders/health`
+- ➕ Create Order: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/orders`
+- 📚 Get All Orders: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/orders`
+- 🔎 Get Order by ID: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/orders/{id}`
+- 👤 Get Orders by User: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/orders/user/{userId}`
+- ❤️ Health Check: `http://shopflow-alb-123456789.us-east-1.elb.amazonaws.com/orders/health`
 
 ---
 
