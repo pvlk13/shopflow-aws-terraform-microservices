@@ -38,24 +38,8 @@ This project demonstrates how to design and operate a **scalable, resilient dist
 
 ## 🏗️ Architecture
 
-```text
-                           Internet
-                              │
-                              ▼
-                    ┌────────────────────┐
-                    │  Application Load  │
-                    │     Balancer       │
-                    └─────────┬──────────┘
-                              │
-          ┌───────────────────┼───────────────────┐
-          ▼                   ▼                   ▼
-   User Service        Product Service      Order Service
-   (FastAPI)              (Go)             (Spring Boot)
-          │                   │                   │
-          └──────────────┬────┴──────────────┬───┘
-                         ▼                   ▼
-                  PostgreSQL (RDS)     (Future extensions)
-```
+<img width="1454" height="976" alt="Image" src="https://github.com/user-attachments/assets/3d89f96f-d4b5-4d93-9d75-edef66648525" />
+
 
 ### 🔄 Request Flow
 
